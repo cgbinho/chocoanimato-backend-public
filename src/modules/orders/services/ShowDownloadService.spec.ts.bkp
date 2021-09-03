@@ -1,0 +1,33 @@
+import 'reflect-metadata';
+import AppError from '@shared/errors/AppError';
+import FakeCouponsRepository from '../../orders/repositories/fakes/FakeCouponsRepository';
+
+import ShowDownloadService from './ShowDownloadService';
+import ShowCouponService from './ShowCouponService';
+import FakeCacheProvider from '@shared/container/providers/CacheProvider/fakes/FakeCacheProvider';
+import FakeStorageProvider from '@shared/container/providers/StorageProvider/fakes/FakeStorageProvider';
+
+let fakeCacheProvider: FakeCacheProvider;
+let fakeStorageProvider: FakeStorageProvider;
+let showDownloadService: ShowDownloadService;
+
+beforeEach(() => {
+  fakeCacheProvider = new FakeCacheProvider();
+  fakeStorageProvider = new FakeStorageProvider();
+  showDownloadService = new ShowDownloadService(
+    fakeCacheProvider,
+    fakeStorageProvider
+  );
+});
+
+describe('ShowDownload', () => {
+  it('should be able to show a valid download', async () => {
+    const serveFile = jest.spyOn(fakeStorageProvider, 'serveFile');
+    /*
+    SHOW A DOWNLOAD
+    */
+    const download = await showDownloadService.execute();
+
+    expect(serveFile).toBeCalled();
+  });
+});

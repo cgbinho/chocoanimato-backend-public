@@ -1,0 +1,50 @@
+<style>
+  .message-content {
+    font-family: Arial, Helvetica, sans-serif;
+    max-width: 600px;
+    font-size: 18px;
+    line-height: 21px;
+  }
+</style>
+
+<div class="message-content">
+  <ul>
+    <h4>Recibo de compra</h4>
+    <p>
+      Código do Pedido: <b>{{order.reference_id}}</b> <br />
+      Pedido feito por <b>{{order.user.email}}</b><br />
+      <em>realizado em {{payment.order_create_date}}</em> <br />
+    </p>
+  </ul>
+
+  <ul>
+    {{#if is_multiple_videos}}
+    <h4>Descrição dos itens:</h4>
+    {{else}}
+    <h4>Descrição do item:</h4>
+    {{/if}}
+    {{#each projects}}
+    <p>Vídeo: <i>{{this.name}}</i><br />
+      Descrição: <i>{{this.description}}</i> <br />
+      Duração: <i>{{this.duration}}s</i> | Proporção: <i>{{this.ratio}}</i> <br />
+      Valor: <i>{{this.price}}</i> <br />
+    </p>
+    {{/each}}
+  </ul>
+
+  <ul>
+    <h4>Dados de Cobrança</h4>
+    <p>Método de Pagamento: <i>{{payment.payment_method}}</i> <br />
+      Subtotal: <i>{{payment.gross_amount}}</i> <br />
+      Desconto: <i>{{payment.discount_amount}}</i> <br />
+      Total: <i>{{payment.net_amount}}</i> <br />
+      Número de Parcelas: <i>{{order.installment_count}}</i>
+    </p>
+  </ul>
+
+  <ul>
+    <h4>www.chocoanimato.com</h4>
+    <p><strong>Choco Animato - São Paulo - SP | Brasil.</strong></p>
+  </ul>
+
+</div>

@@ -1,0 +1,57 @@
+<style>
+  .message-content {
+    font-family: Arial, Helvetica, sans-serif;
+    max-width: 600px;
+    font-size: 18px;
+    line-height: 21px;
+  }
+</style>
+
+<div class="message-content">
+
+  <ul>
+    <p>Olá, {{ order.user.name }}!</p>
+    <h4>Seu pedido foi atualizado para o status '{{status.pt}}'.</h4>
+    {{#switch '1' status.en}}
+    {{#case '1' 'in_analysis'}}<p> Seu pagamento feito por cartão está sendo analisado.</p>{{/case}}
+    {{#case '1' 'in_dispute'}}<p> Uma disputa foi aberta, dentro do prazo de liberação da transação.</p>{{/case}}
+    {{#case '1' 'returned'}}<p>Seu pagamento foi cancelado e o valor extornado.</p>{{/case}}
+    {{#case '1' 'cancelled'}}<p>Seu pedido foi cancelado antes da finalização da cobrança.</p>{{/case}}
+    {{#default '1'}}{{/default}}
+    {{/switch}}
+    <p> Você receberá futuros avisos sobre o seu pedido por este email. </p>
+    <p>
+      Código do Pedido: <b>{{order.reference_id}}</b> <br />
+      <em>Pedido realizado em {{payment.order_create_date}}</em> <br />
+    </p>
+  </ul>
+
+  <ul>
+    <h4>Dados sobre o Pedido</h4>
+  </ul>
+  <ul>
+    <h4>Descrição dos itens:</h4>
+    {{#each projects}}
+    <p>Vídeo: <i>{{this.name}}</i><br />
+      Descrição: <i>{{this.template.description}}</i> <br />
+      Duração: <i>{{this.template.duration}}s</i> | Proporção: <i>{{this.template.ratio}}</i> <br />
+      Valor: <i>{{this.price_formatted}}</i> <br />
+    </p>
+    {{/each}}
+  </ul>
+
+  <ul>
+    <h4>Dados de Cobrança</h4>
+    <p>Método de Pagamento: {{payment.payment_method}} <br />
+      Subtotal: <i>{{payment.gross_amount}}</i> <br />
+      Desconto: <i>{{payment.discount_amount}}</i> <br />
+      Total: <i>{{payment.net_amount}}</i> <br />
+      Número de Parcelas: <i>{{order.installment_count}}</i>
+    </p>
+  </ul>
+
+  <p>
+    Bons vídeos! <br />
+    <strong>Choco Animato</strong>
+  </p>
+</div>

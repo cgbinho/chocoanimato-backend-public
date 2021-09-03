@@ -1,0 +1,80 @@
+import { Request, Response, NextFunction } from 'express';
+import { getRepository } from 'typeorm';
+
+import User from '@modules/users/infra/typeorm/entities/User';
+
+import Order from '@modules/orders/infra/typeorm/entities/Order';
+import AppError from '@shared/errors/AppError';
+import {
+  IProjectsRequestDTO,
+  IOrdersRequestDTO,
+  IUsersRequestDTO
+} from '../dtos/IRequestDTO';
+
+/*
+MIDDLEWARE TO ALLOW ACCESS TO ORDERS BASED ON OWNERSHIP OR ROLE.
+Only the user that created the order and a user with Admin role can view the order
+*/
+
+export async function setOrder(
+  request: IUsersRequestDTO & IOrdersRequestDTO,
+  response: Response,
+  next: NextFunction
+): Promise<void> {
+  try {
+    const { id } = request.user;
+    const order_id = request.params.id;
+
+    const usersRepository = getRepository(User);
+
+    const user = await usersRepository.findOne({
+      where: { id }
+    });
+
+    if (!user) {
+      throw new AppError('Not Allowed.');
+    }
+
+    const ordersRepository = getRepository(Order);
+
+    const order = await ordersRepository.findOne({
+      where: { id: order_id }
+    });
+
+    if (!order) {
+      throw new AppError('Order does not exist.');
+    }
+
+    /*
+    SETS USER ROLE IN REQUEST:
+    */
+    request.user.role = user.role;
+
+    /*
+    SETS ORDER INFO
+    */
+    request.order = order;
+    return next();
+  } catch {
+    throw new AppError('Not Allowed', 401);
+  }
+}
+
+function canViewOrder(user: any, order: any) {
+  return user.role === 'admin' || order.user_id === user.id;
+}
+
+/*
+CHECKS IF USER IS OWNER OF THE ORDER OR IF USER TRYING TO ACCESS IT IS ROLE: ADMIN
+*/
+export function ensureCanViewOrder(
+  request: IUsersRequestDTO & IOrdersRequestDTO,
+  response: Response,
+  next: NextFunction
+): void {
+  if (!canViewOrder(request.user, request.order)) {
+    throw new AppError('Not Allowed', 401);
+  }
+
+  return next();
+}

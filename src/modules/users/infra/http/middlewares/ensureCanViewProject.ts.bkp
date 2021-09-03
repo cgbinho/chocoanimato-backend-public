@@ -1,0 +1,76 @@
+import { Request, Response, NextFunction } from 'express';
+import { getRepository } from 'typeorm';
+
+import User from '@modules/users/infra/typeorm/entities/User';
+
+import Project from '@modules/projects/infra/typeorm/entities/Project';
+import AppError from '@shared/errors/AppError';
+import {
+  IProjectsRequestDTO,
+  IOrdersRequestDTO,
+  IUsersRequestDTO
+} from '../dtos/IRequestDTO';
+
+/*
+MIDDLEWARE TO ALLOW ACCESS TO PROJECTS BASED ON OWNERSHIP OR ROLE.
+Only the user that created the project and a user with Admin role can view the project
+*/
+
+export async function setProject(
+  request: IProjectsRequestDTO,
+  response: Response,
+  next: NextFunction
+): Promise<void> {
+  try {
+    const id = request.user.id;
+    const project_id = request.params.id;
+
+    const usersRepository = getRepository(User);
+
+    const user = await usersRepository.findOne({
+      where: { id }
+    });
+
+    if (!user) {
+      throw new AppError('Not Allowed.');
+    }
+
+    const projectsRepository = getRepository(Project);
+
+    const project = await projectsRepository.findOne({
+      where: { id: project_id }
+    });
+
+    if (!project) {
+      throw new AppError('Project does not exist.');
+    }
+
+    /*
+    SETS PROJECT ID AND USER_ID IN REQUEST
+     */
+    request.user = user;
+    request.project = project;
+
+    console.log(`user and project is valid through 'setProject'...`);
+    return next();
+  } catch {
+    console.log(`user and project is NOT valid through 'setProject'...`);
+    throw new AppError('Not Allowed', 401);
+  }
+}
+
+function canViewProject(user: any, project: any) {
+  return user.role === 'admin' || project.user_id === user.id;
+}
+
+export function ensureCanViewProject(
+  request: IUsersRequestDTO & IProjectsRequestDTO,
+  response: Response,
+  next: NextFunction
+): void {
+  if (!canViewProject(request.user, request.project)) {
+    throw new AppError('Not Allowed', 401);
+  }
+
+  return next();
+}

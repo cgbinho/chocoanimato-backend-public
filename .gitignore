@@ -1,0 +1,25 @@
+.env
+.env.production
+node_modules
+dist/
+.vscode
+# !temp/.gitkeep
+storage/disk/chocoani-private-downloads/*
+storage/disk/chocoani-private-images/*
+storage/disk/chocoani-private-music/*
+storage/disk/chocoani-private-projects/*
+storage/disk/chocoani-private-receipts/*
+storage/disk/chocoani-private-templates/*
+storage/disk/chocoani-public-images/*
+storage/disk/chocoani-public-music/*
+storage/disk/chocoani-public-templates/*
+storage/disk/temp/*
+storage/fakeS3_old/*
+!.gitkeep
+/**/bkp
+/coverage
+debug.log
+Dockerfile
+docker-compose*
+ormconfig.js
+dist.zip
